@@ -2730,6 +2730,25 @@ var Windows = {
 		};
 		Windows.Focus(id);
 	},
+	Snaps: function (id) {
+		var x = event.clientX;
+		e = document.getElementById(id);
+		var f = document.getElementById(id + '_WindowMaxButton');
+		width = xWidth(e.parentNode);
+		if (f.style.display !== 'none') {
+			if (xTop(id)==0) {
+				Windows.Maximize(id);
+			}
+			if ((xLeft(id)<=0) && (x<=0)) {
+				Windows.MaximizeLeft(id);
+			}
+			if ((xLeft(id)>=width/2) && (x>=width-1)) {
+				Windows.MaximizeRight(id);
+			}
+			} else {
+			MoveAfter(id);
+		}
+	},
 
 	DragAfter: function (id) {
 		if (Windows.List[id].dragBg === true) {
@@ -2869,6 +2888,73 @@ var Windows = {
 			sendMsg(Windows.List[id].xChecknum, 'saveWinMax', eyeParam('maximized', Windows.List[id].maximized) + eyeParam('winName', id) + eyeParam('appChecknum', Windows.List[id].checknum));
 		}
 	},
+		MaximizeLeft: function (id) {
+		var e, height, width;
+		e = document.getElementById(id);
+		if (e && !Windows.List[id].noResize) {
+			if (Windows.List[id].maximized === 2) {
+				height = Windows.List[id].height;
+				Windows.SetHeight(id, height, 1);
+				width = Windows.List[id].width;
+				Windows.SetWidth(id, width, 1);
+				Windows.SetX(id, Windows.List[id].x);
+				Windows.SetY(id, Windows.List[id].y);
+				Windows.List[id].maximized = 0;
+			} else {
+				if (!Windows.List[id].maximized) {
+					Windows.List[id].height = xHeight(id);
+					Windows.List[id].width = xWidth(id);
+					Windows.List[id].x = xLeft(id);
+					Windows.List[id].y = xTop(id);
+				}
+				height = xHeight(e.parentNode);
+				Windows.SetHeight(id, height, 2);
+				width = xWidth(e.parentNode)/2;
+				Windows.SetWidth(id, width, 2);
+				Windows.SetX(id, 0, 1);
+				Windows.SetY(id, 0, 1);
+				Windows.List[id].maximized = 2;
+			}
+			if (Windows.List[id].resizeMessage !== undefined) {
+				sendMsg(Windows.List[id].checknum, Windows.List[id].resizeMessage, eyeParam('arg', width) + eyeParam('arg', height));
+			}
+			sendMsg(Windows.List[id].xChecknum, 'saveWinMax', eyeParam('maximized', Windows.List[id].maximized) + eyeParam('winName', id) + eyeParam('appChecknum', Windows.List[id].checknum));
+		}
+	},		
+	
+	MaximizeRight: function (id) {
+		var e, height, width;
+		e = document.getElementById(id);
+		if (e && !Windows.List[id].noResize) {
+			if (Windows.List[id].maximized === 2) {
+				height = Windows.List[id].height;
+				Windows.SetHeight(id, height, 1);
+				width = Windows.List[id].width;
+				Windows.SetWidth(id, width, 1);
+				Windows.SetX(id, Windows.List[id].x);
+				Windows.SetY(id, Windows.List[id].y);
+				Windows.List[id].maximized = 0;
+			} else {
+				if (!Windows.List[id].maximized) {
+					Windows.List[id].height = xHeight(id);
+					Windows.List[id].width = xWidth(id);
+					Windows.List[id].x = xLeft(id);
+					Windows.List[id].y = xTop(id);
+				}
+				height = xHeight(e.parentNode);
+				Windows.SetHeight(id, height, 2);
+				width = xWidth(e.parentNode)/2;
+				Windows.SetWidth(id, width, 2);
+				Windows.SetX(id, width, 1);
+				Windows.SetY(id, 0, 1);
+				Windows.List[id].maximized = 2;
+			}
+			if (Windows.List[id].resizeMessage !== undefined) {
+				sendMsg(Windows.List[id].checknum, Windows.List[id].resizeMessage, eyeParam('arg', width) + eyeParam('arg', height));
+			}
+			sendMsg(Windows.List[id].xChecknum, 'saveWinMax', eyeParam('maximized', Windows.List[id].maximized) + eyeParam('winName', id) + eyeParam('appChecknum', Windows.List[id].checknum));
+		}
+	},
 
 	MaximizeButton: function (id, show) {
 		var e = document.getElementById(id + '_WindowMaxButton');
@@ -2959,6 +3045,7 @@ var Windows = {
 	},
 
 	MoveAfter: function (id) {
+		Windows.Snaps(id);
 		if (!Windows.List[id].noDrag) {
 			Windows.DragAfter(id);
 			if (!Windows.List[id].maximized && Windows.List[id].saveposMessage !== undefined) {
